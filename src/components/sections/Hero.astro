@@ -31,7 +31,7 @@ const embedSrc = video
     <div class="hero-copy">
       <p class="hero-kicker">
         <span class="dot" aria-hidden="true"></span>
-        Música carranguera · Contrataciones en Colombia
+        Música carranguera • Contrataciones en Colombia
       </p>
 
       <h1 class="hero-title">El campo<br />suena<br class="br-m" /> <span class="hl">fuerte</span></h1>
@@ -354,32 +354,78 @@ const embedSrc = video
   @media (max-width: 899px) {
     .hero {
       height: auto;
-      min-height: 100svh;
+      min-height: auto;
+      padding-bottom: 1.75rem;
       flex-direction: column;
       align-items: stretch;
     }
+
+    /* Aplanamos los contenedores para poder ordenar cada pieza
+       (kicker, título, imagen, tarjeta de play) como en la referencia. */
+    .hero-inner,
+    .hero-copy {
+      display: contents;
+    }
+
+    .hero-kicker {
+      order: 1;
+      align-self: flex-start;
+      margin: 6.5rem 0 0 clamp(1rem, 5vw, 1.5rem);
+      max-width: calc(100% - 2rem);
+    }
+
+    .hero-title {
+      order: 2;
+      margin: 1.4rem clamp(1rem, 5vw, 1.5rem) 0;
+      font-size: clamp(2.75rem, 17vw, 5.5rem);
+      line-height: 0.92;
+    }
+    .hero-title .br-m {
+      display: inline;
+    }
+
+    /* El subtítulo se oculta en móvil (la referencia va directo a la imagen). */
+    .hero-sub {
+      display: none;
+    }
+
     .hero-media {
+      order: 3;
       position: relative;
       inset: auto;
-      order: 2;
       width: 100%;
-      margin-top: -2rem;
+      margin-top: 1.6rem;
     }
     .hero-img {
       height: auto;
       width: 100%;
       transform: none;
+      display: block;
     }
-    .hero-inner {
-      order: 1;
-      padding-top: 7rem;
-      padding-bottom: 0;
+
+    /* Tarjeta de play blanca, centrada y montada sobre la parte baja de la foto. */
+    .play {
+      order: 4;
+      position: relative;
+      z-index: 4;
+      margin: -4rem auto 0;
+      width: min(86%, 30rem);
+      gap: 1rem;
+      padding: 0.75rem 1.5rem 0.75rem 0.75rem;
+      background: #fff;
+      border-radius: var(--radius-full);
+      box-shadow: 0 18px 40px rgba(30, 30, 30, 0.18);
     }
-    .hero-title {
-      font-size: clamp(2.75rem, 16.5vw, 5rem);
+    .play-btn {
+      width: 3.7rem;
+      height: 3.7rem;
     }
-    .hero-title .br-m {
-      display: inline;
+    .play-btn svg {
+      width: 1.6rem;
+      height: 1.6rem;
+    }
+    .play-t b {
+      font-size: 1.05rem;
     }
   }
 </style>
