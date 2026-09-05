@@ -1,0 +1,84 @@
+---
+/**
+ * WhatsAppButton — botón flotante de contacto directo por WhatsApp.
+ * El número sale de la configuración global (site.contact.whatsapp).
+ */
+import { site } from '../../data/site';
+
+// Normaliza el número a solo dígitos para el enlace wa.me.
+const digits = site.contact.whatsapp.replace(/\D/g, '');
+const message = encodeURIComponent(
+  '¡Hola Cuerdabajo! Me gustaría cotizar una presentación para mi evento.',
+);
+const href = `https://wa.me/${digits}?text=${message}`;
+---
+
+<a
+  class="wa"
+  href={href}
+  target="_blank"
+  rel="noopener noreferrer"
+  aria-label="Escríbenos por WhatsApp"
+>
+  <span class="wa-pulse" aria-hidden="true"></span>
+  <svg class="wa-icon" viewBox="0 0 32 32" fill="currentColor" aria-hidden="true">
+    <path
+      d="M16.04 4C9.9 4 4.9 9 4.9 15.14c0 2.17.63 4.19 1.72 5.9L4.5 28l7.15-2.06a11.1 11.1 0 0 0 4.39.9h.01c6.14 0 11.14-5 11.14-11.14C27.19 9 22.19 4 16.04 4Zm0 20.4h-.01a9.2 9.2 0 0 1-4.69-1.28l-.34-.2-4.24 1.22 1.24-4.13-.22-.35a9.16 9.16 0 0 1-1.41-4.92c0-5.08 4.14-9.22 9.23-9.22 2.46 0 4.78.96 6.52 2.7a9.16 9.16 0 0 1 2.7 6.53c0 5.08-4.14 9.22-9.23 9.22Zm5.06-6.9c-.28-.14-1.64-.81-1.9-.9-.25-.09-.44-.14-.62.14-.18.28-.71.9-.87 1.08-.16.18-.32.2-.6.07-.28-.14-1.17-.43-2.23-1.38-.82-.73-1.38-1.64-1.54-1.92-.16-.28-.02-.43.12-.57.13-.13.28-.32.42-.49.14-.16.18-.28.28-.46.09-.18.05-.35-.02-.49-.07-.14-.62-1.5-.85-2.05-.22-.54-.45-.46-.62-.47l-.53-.01c-.18 0-.48.07-.73.35-.25.28-.96.94-.96 2.3s.98 2.66 1.12 2.85c.14.18 1.93 2.95 4.68 4.14.65.28 1.16.45 1.56.58.65.21 1.25.18 1.72.11.52-.08 1.64-.67 1.87-1.32.23-.65.23-1.2.16-1.32-.07-.12-.25-.19-.53-.33Z"
+    ></path>
+  </svg>
+</a>
+
+<style>
+  .wa {
+    position: fixed;
+    right: clamp(1rem, 3vw, 1.75rem);
+    bottom: clamp(1rem, 3vw, 1.75rem);
+    z-index: 90;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 3.75rem;
+    height: 3.75rem;
+    border-radius: var(--radius-full);
+    background: #25d366;
+    color: #fff;
+    box-shadow: 0 10px 24px rgba(37, 211, 102, 0.45);
+  }
+  .wa-icon {
+    width: 2.1rem;
+    height: 2.1rem;
+  }
+  .wa-pulse {
+    position: absolute;
+    inset: 0;
+    border-radius: var(--radius-full);
+    background: #25d366;
+    opacity: 0.55;
+    z-index: -1;
+  }
+  .wa:hover {
+    background: #1fbd5a;
+  }
+  .wa:focus-visible {
+    outline: 3px solid #fff;
+    outline-offset: 3px;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .wa {
+      transition:
+        background-color var(--transition-fast) var(--ease-brand),
+        transform var(--transition-fast) var(--ease-brand);
+    }
+    .wa:hover {
+      transform: scale(1.06);
+    }
+    .wa-pulse {
+      animation: wa-pulse 2.4s var(--ease-brand) infinite;
+    }
+  }
+  @keyframes wa-pulse {
+    0% { transform: scale(1); opacity: 0.5; }
+    70% { transform: scale(1.7); opacity: 0; }
+    100% { transform: scale(1.7); opacity: 0; }
+  }
+</style>

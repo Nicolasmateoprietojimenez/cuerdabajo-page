@@ -1,0 +1,35 @@
+---
+/**
+ * Hero — solo la imagen (punto de partida).
+ * La imagen se escala por altura para ocupar todo el alto del viewport
+ * sin recortar a la agrupación (solo se ocultan los márgenes laterales).
+ */
+---
+
+<section id="inicio" class="hero">
+  <img
+    class="hero-img"
+    src="/images/hero.png"
+    alt="Integrantes de la agrupación Cuerdabajo"
+    width="1920"
+    height="1080"
+    fetchpriority="high"
+  />
+</section>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100svh;
+    background-color: #e7dbcb;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+  .hero-img {
+    height: 100%;
+    width: auto;
+    max-width: none;
+  }
+</style>

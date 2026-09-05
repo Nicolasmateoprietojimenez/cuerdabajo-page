@@ -1,0 +1,11 @@
+Imágenes de la línea de tiempo (Historia). Sube una por hito con estos nombres
+(cualquier extensión: .jpg .jpeg .png .webp). Se cargan automáticamente:
+
+  comuna-minga           -> Debut Comuna Minga (2022)
+  primeras-presentaciones-> Primeras presentaciones (2022)
+  tipica-mi-garulla      -> Típica Mi Garulla (2023)
+  soacha-vive-la-musica  -> Soacha Vive la Música (2024)
+  teloneros-los-hispanos -> Teloneros de Los Hispanos (2024)
+  mochila-atrapasuenos   -> Mochila Atrapasueños (2025)
+  jornada-choco          -> Jornada por el Chocó (2025)
+  mes-juventud           -> Cierre Mes de la Juventud (2026)

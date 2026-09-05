@@ -1,0 +1,385 @@
+---
+/**
+ * Hero — imagen + mensaje urbano a la izquierda.
+ * La imagen ocupa todo el alto (escala por altura) desplazada a la derecha.
+ * El botón de play abre, con animación de rebote, el video de YouTube.
+ */
+import { site } from '../../data/site';
+
+const video = site.heroVideo;
+const start = video?.start ?? 0;
+const embedSrc = video
+  ? `https://www.youtube-nocookie.com/embed/${video.youtubeId}?start=${start}&autoplay=1&rel=0&modestbranding=1`
+  : '';
+---
+
+<section id="inicio" class="hero">
+  <!-- Imagen a sangre (escala por altura, desplazada a la derecha) -->
+  <div class="hero-media" aria-hidden="true">
+    <img
+      class="hero-img"
+      src="/images/hero.png"
+      alt="Integrantes de la agrupación Cuerdabajo"
+      width="1920"
+      height="1080"
+      fetchpriority="high"
+    />
+  </div>
+
+  <!-- Texto -->
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="hero-kicker">
+        <span class="dot" aria-hidden="true"></span>
+        Música carranguera · Contrataciones en Colombia
+      </p>
+
+      <h1 class="hero-title">El campo<br />suena<br class="br-m" /> <span class="hl">fuerte</span></h1>
+
+      <p class="hero-sub">
+        Carranga con actitud desde Soacha. Llevamos la fiesta del campo a tu festival,
+        empresa o evento.
+      </p>
+
+      {
+        video && (
+          <button
+            type="button"
+            id="hero-play"
+            class="play"
+            aria-haspopup="dialog"
+            aria-controls="video-modal"
+            aria-label="Reproducir video de Cuerdabajo"
+          >
+            <span class="play-btn" aria-hidden="true">
+              <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+            </span>
+            <span class="play-t">
+              <b>Míranos en acción</b>
+              <span>Ver video</span>
+            </span>
+          </button>
+        )
+      }
+    </div>
+  </div>
+
+  <!-- Modal de video (entrada con rebote) -->
+  {
+    video && (
+      <div id="video-modal" class="video-modal" role="dialog" aria-modal="true" aria-label="Video de Cuerdabajo" hidden>
+        <div class="video-backdrop" data-close />
+        <div class="video-dialog">
+          <button type="button" class="video-close" data-close aria-label="Cerrar video">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+              <line x1="6" y1="6" x2="18" y2="18" stroke-width="2.2" stroke-linecap="round" />
+              <line x1="18" y1="6" x2="6" y2="18" stroke-width="2.2" stroke-linecap="round" />
+            </svg>
+          </button>
+          <div class="video-frame">
+            <iframe
+              id="video-iframe"
+              title="Video de Cuerdabajo en YouTube"
+              src="about:blank"
+              data-src={embedSrc}
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+              allowfullscreen
+            />
+          </div>
+        </div>
+      </div>
+    )
+  }
+</section>
+
+<script>
+  const play = document.getElementById('hero-play');
+  const modal = document.getElementById('video-modal');
+  const iframe = document.getElementById('video-iframe') as HTMLIFrameElement | null;
+
+  if (play && modal && iframe) {
+    const src = iframe.getAttribute('data-src') ?? '';
+
+    const open = (): void => {
+      modal.hidden = false;
+      void modal.offsetWidth;
+      modal.classList.add('is-open');
+      iframe.src = src;
+      document.body.style.overflow = 'hidden';
+      modal.querySelector<HTMLButtonElement>('.video-close')?.focus();
+    };
+
+    const close = (): void => {
+      modal.classList.remove('is-open');
+      iframe.src = 'about:blank';
+      document.body.style.overflow = '';
+      play.focus();
+      window.setTimeout(() => {
+        if (!modal.classList.contains('is-open')) modal.hidden = true;
+      }, 260);
+    };
+
+    play.addEventListener('click', open);
+    modal.querySelectorAll('[data-close]').forEach((el) => el.addEventListener('click', close));
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && modal.classList.contains('is-open')) close();
+    });
+  }
+</script>
+
+<style>
+  .hero {
+    position: relative;
+    height: 100svh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    background-color: #e7dbcb;
+  }
+
+  /* ---------- Imagen ---------- */
+  .hero-media {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .hero-img {
+    height: 100%;
+    width: auto;
+    max-width: none;
+    transform: translateX(10%);
+  }
+
+  /* ---------- Texto ---------- */
+  .hero-inner {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    max-width: 110rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 1.8vw, 1.5rem);
+  }
+  .hero-copy {
+    max-width: 38rem;
+  }
+  .hero-kicker {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.55rem;
+    margin: 0 0 1.4rem;
+    padding: 0.45rem 0.9rem;
+    border: 1px solid rgba(30, 30, 30, 0.14);
+    border-radius: var(--radius-full);
+    background: rgba(30, 30, 30, 0.06);
+    font-size: var(--text-caption);
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+  }
+  .hero-kicker .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    flex: none;
+  }
+  .hero-title {
+    margin: 0;
+    font-family: var(--font-display);
+    font-weight: 400;
+    font-size: clamp(3rem, 8vw, 6.5rem);
+    line-height: 0.9;
+    letter-spacing: -0.05em;
+    text-transform: uppercase;
+    color: var(--color-foreground);
+  }
+  .hero-title .hl {
+    color: var(--color-primary);
+  }
+  .hero-title .br-m {
+    display: none;
+  }
+  .hero-sub {
+    margin: 1.4rem 0 0;
+    max-width: 26rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: var(--color-foreground-muted);
+  }
+
+  /* ---------- Botón de play ---------- */
+  .play {
+    margin-top: 2.5rem;
+    display: inline-flex;
+    align-items: center;
+    gap: 1.1rem;
+    padding: 0;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    color: var(--color-foreground);
+  }
+  .play-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 4.75rem;
+    height: 4.75rem;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: #fff;
+    box-shadow: 0 14px 30px rgba(240, 118, 26, 0.4);
+  }
+  .play-btn svg {
+    width: 2rem;
+    height: 2rem;
+    margin-left: 0.2rem;
+  }
+  .play-t {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    line-height: 1.2;
+  }
+  .play-t b {
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    text-transform: uppercase;
+  }
+  .play-t span {
+    font-size: var(--text-small);
+    color: var(--color-foreground-muted);
+  }
+  .play:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 6px;
+    border-radius: var(--radius-lg);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .play-btn {
+      transition: transform var(--transition-fast) var(--ease-brand);
+    }
+    .play:hover .play-btn {
+      transform: scale(1.08);
+    }
+  }
+
+  /* ---------- Modal de video ---------- */
+  .video-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.25rem;
+  }
+  .video-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(20, 18, 15, 0.82);
+    opacity: 0;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    transition: opacity 0.25s ease;
+  }
+  .video-dialog {
+    position: relative;
+    width: min(92vw, 64rem);
+    opacity: 0;
+    transform: scale(0.7);
+  }
+  .video-close {
+    position: absolute;
+    top: -3rem;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.5rem;
+    height: 2.5rem;
+    border: none;
+    border-radius: var(--radius-full);
+    background: rgba(255, 255, 255, 0.14);
+    color: #fff;
+    cursor: pointer;
+  }
+  .video-close:hover {
+    background: rgba(255, 255, 255, 0.26);
+  }
+  .video-close svg {
+    width: 1.4rem;
+    height: 1.4rem;
+  }
+  .video-frame {
+    position: relative;
+    aspect-ratio: 16 / 9;
+    width: 100%;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #000;
+    box-shadow: 0 30px 80px rgba(0, 0, 0, 0.5);
+  }
+  .video-frame iframe {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    border: 0;
+  }
+  .video-modal.is-open .video-backdrop {
+    opacity: 1;
+  }
+  .video-modal.is-open .video-dialog {
+    opacity: 1;
+    transform: scale(1);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .video-modal.is-open .video-dialog {
+      animation: video-bounce 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) both;
+    }
+  }
+  @keyframes video-bounce {
+    0% { opacity: 0; transform: scale(0.7) translateY(30px); }
+    55% { opacity: 1; transform: scale(1.04) translateY(-8px); }
+    100% { opacity: 1; transform: scale(1) translateY(0); }
+  }
+
+  /* ---------- Mobile / tablet ---------- */
+  @media (max-width: 899px) {
+    .hero {
+      height: auto;
+      min-height: 100svh;
+      flex-direction: column;
+      align-items: stretch;
+    }
+    .hero-media {
+      position: relative;
+      inset: auto;
+      order: 2;
+      width: 100%;
+      margin-top: -2rem;
+    }
+    .hero-img {
+      height: auto;
+      width: 100%;
+      transform: none;
+    }
+    .hero-inner {
+      order: 1;
+      padding-top: 7rem;
+      padding-bottom: 0;
+    }
+    .hero-title {
+      font-size: clamp(2.75rem, 16.5vw, 5rem);
+    }
+    .hero-title .br-m {
+      display: inline;
+    }
+  }
+</style>

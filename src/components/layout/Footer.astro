@@ -1,0 +1,156 @@
+---
+import { site } from '../../data/site';
+import { mainNav } from '../../data/navigation';
+import { social, socialIcons } from '../../data/social';
+
+const year = new Date().getFullYear();
+const waDigits = site.contact.whatsapp.replace(/\D/g, '');
+---
+
+<footer class="footer">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <a class="footer-logo" href="/" aria-label={`${site.name} — Inicio`}>
+        <img src="/images/logo.png" alt="" width="40" height="40" />
+        <span>{site.name}</span>
+      </a>
+      <p class="footer-slogan">Nuestra tierra. Nuestra música. Nuestra historia.</p>
+    </div>
+
+    <nav class="footer-nav" aria-label="Navegación del pie">
+      {mainNav.map((item) => <a href={item.href}>{item.label}</a>)}
+    </nav>
+
+    <div class="footer-contact">
+      <span class="footer-label">Contrataciones</span>
+      <a href={`https://wa.me/${waDigits}`} target="_blank" rel="noopener noreferrer">
+        WhatsApp {site.contact.whatsapp}
+      </a>
+      <a href={`mailto:${site.contact.email}`}>{site.contact.email}</a>
+      <span class="footer-city">{site.city}</span>
+      <div class="footer-social">
+        {
+          social.map((sn) => (
+            <a href={sn.url} target="_blank" rel="noopener noreferrer" aria-label={sn.label}>
+              <span class="soc-ico" set:html={socialIcons[sn.platform]} />
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="footer-bottom">
+    <span>© {year} {site.name}. Agrupación carranguera.</span>
+    <span>Hecho con orgullo campesino 🌾</span>
+  </div>
+</footer>
+
+<style>
+  .footer {
+    background: #121110;
+    color: #b8ac99;
+    padding: clamp(2.5rem, 6vw, 4rem) 0 1.5rem;
+  }
+  .footer-inner {
+    max-width: 110rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 1.8vw, 1.5rem);
+    display: grid;
+    gap: 2.5rem;
+  }
+  .footer-logo {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: #fff;
+  }
+  .footer-logo img {
+    width: 2.5rem;
+    height: 2.5rem;
+    /* logo negro -> visible en oscuro */
+    filter: invert(1) brightness(1.6);
+  }
+  .footer-logo span {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    letter-spacing: -0.05em;
+  }
+  .footer-slogan {
+    margin: 1rem 0 0;
+    max-width: 22rem;
+    font-family: var(--font-heading);
+    font-size: 1.25rem;
+    letter-spacing: -0.02em;
+    line-height: 1.05;
+    text-transform: uppercase;
+    color: #f0e6d6;
+  }
+  .footer-nav {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+  }
+  .footer-nav a {
+    color: #d9c3a1;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: var(--text-small);
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+  }
+  .footer-nav a:hover {
+    color: var(--color-primary);
+  }
+  .footer-contact {
+    display: grid;
+    gap: 0.4rem;
+  }
+  .footer-label {
+    font-size: var(--text-caption);
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: #8a8073;
+  }
+  .footer-contact a {
+    color: #f0e6d6;
+    text-decoration: none;
+    font-weight: 600;
+  }
+  .footer-contact a:hover {
+    color: var(--color-primary);
+  }
+  .footer-city {
+    color: #8a8073;
+    font-size: var(--text-small);
+  }
+  .footer-social {
+    display: flex;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .footer-social a { color: #d9c3a1; display: inline-flex; }
+  .footer-social a:hover { color: var(--color-primary); }
+  .footer-social .soc-ico :global(svg) { width: 1.35rem; height: 1.35rem; }
+  .footer-bottom {
+    max-width: 110rem;
+    margin: 2.5rem auto 0;
+    padding: 1.5rem clamp(1rem, 1.8vw, 1.5rem) 0;
+    border-top: 1px solid rgba(240, 230, 214, 0.1);
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    font-size: var(--text-caption);
+    color: #8a8073;
+  }
+  @media (min-width: 800px) {
+    .footer-inner {
+      grid-template-columns: 1.4fr 1fr 1fr;
+      gap: 3rem;
+      align-items: start;
+    }
+  }
+</style>

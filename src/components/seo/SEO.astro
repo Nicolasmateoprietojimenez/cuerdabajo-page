@@ -1,0 +1,50 @@
+---
+/**
+ * SEO — metadatos reutilizables para <head>.
+ *
+ * Centraliza <title>, description, canonical, Open Graph y Twitter/X Cards.
+ * La URL base sale SIEMPRE de la configuración global (site.url); no se
+ * hardcodea en varios archivos.
+ */
+import { site } from '../../data/site';
+
+interface Props {
+  title: string;
+  description: string;
+  /** Ruta o URL de la imagen social (opcional). */
+  image?: string;
+  /** URL canónica explícita (opcional); por defecto la ruta actual. */
+  canonicalURL?: string;
+  /** Tipo Open Graph. */
+  type?: 'website' | 'article';
+}
+
+const { title, description, image, canonicalURL, type = 'website' } = Astro.props;
+
+// URL canónica absoluta a partir de la configuración global.
+const canonical = new URL(canonicalURL ?? Astro.url.pathname, site.url).href;
+
+// Imagen social: prop → valor por defecto de site → ninguna. Resuelta a absoluta.
+const resolvedImage = image ?? site.ogImage;
+const ogImage = resolvedImage ? new URL(resolvedImage, site.url).href : undefined;
+---
+
+<!-- Primary -->
+<title>{title}</title>
+<meta name="description" content={description} />
+<link rel="canonical" href={canonical} />
+
+<!-- Open Graph -->
+<meta property="og:type" content={type} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:url" content={canonical} />
+<meta property="og:site_name" content={site.name} />
+<meta property="og:locale" content={site.locale} />
+{ogImage && <meta property="og:image" content={ogImage} />}
+
+<!-- Twitter / X Cards -->
+<meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+{ogImage && <meta name="twitter:image" content={ogImage} />}

@@ -1,0 +1,75 @@
+---
+/**
+ * Galería — carga automática desde src/assets/galeria/ (fondo oscuro).
+ * props: compact (muestra `limit` fotos + enlace) y limit.
+ */
+import { Image } from 'astro:assets';
+interface Props {
+  compact?: boolean;
+  limit?: number;
+}
+const { compact = false, limit = 6 } = Astro.props;
+
+const modules = import.meta.glob<{ default: ImageMetadata }>(
+  '/src/assets/galeria/*.{jpg,jpeg,png,webp,JPG,JPEG,PNG,WEBP,avif}',
+  { eager: true },
+);
+let images = Object.entries(modules)
+  .sort(([a], [b]) => b.localeCompare(a))
+  .map(([, mod]) => mod.default);
+if (compact) images = images.slice(0, limit);
+---
+
+<section id="galeria" class="sec sec--dark gal">
+  <div class="sec-inner">
+    <div class="gal-head" data-reveal>
+      <span class="kicker">Galería</span>
+      <h2 class="display display--lg" style="color:#fff">En vivo</h2>
+      <p class="gal-sub">Momentos de tarima, comunidad y carretera.</p>
+    </div>
+
+    {
+      images.length > 0 ? (
+        <div class="grid">
+          {images.map((img, i) => (
+            <figure class="gitem" data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
+              <Image src={img} alt={`Cuerdabajo — foto ${i + 1}`} widths={[400, 800]} sizes="(min-width: 900px) 30vw, 90vw" loading="lazy" />
+            </figure>
+          ))}
+        </div>
+      ) : (
+        <p class="empty" data-reveal>
+          Aún no hay fotos. Sube tus imágenes a <code>src/assets/galeria/</code> y aparecerán
+          aquí automáticamente.
+        </p>
+      )
+    }
+
+    {
+      compact && images.length > 0 && (
+        <a class="gal-more" href="/galeria" data-reveal>
+          Ver galería completa
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<style>
+  .gal-head { max-width: 42rem; margin-bottom: 2rem; }
+  .gal-sub { margin: 0.75rem 0 0; font-size: 1.05rem; color: #b8ac99; }
+  .grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
+  .gitem { margin: 0; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 4 / 3; background: #2a2724; }
+  .gitem :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--transition-slow) var(--ease-brand); }
+  .gitem:hover :global(img) { transform: scale(1.06); }
+  .empty { max-width: 40rem; color: #b8ac99; line-height: 1.6; }
+  .empty code { color: var(--color-primary); }
+  .gal-more { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.75rem; color: #fff; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: var(--text-small); text-decoration: none; }
+  .gal-more svg { width: 1.15rem; height: 1.15rem; color: var(--color-primary); transition: transform var(--transition-fast) var(--ease-brand); }
+  .gal-more:hover svg { transform: translateX(4px); }
+  @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 900px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+</style>

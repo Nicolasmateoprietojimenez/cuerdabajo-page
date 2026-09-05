@@ -1,0 +1,23 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Nosotros from '../components/sections/Nosotros.astro';
+import Historia from '../components/sections/Historia.astro';
+---
+
+<MainLayout
+  title="Nosotros — Cuerdabajo"
+  description="Agrupación carranguera de Soacha con más de 3 años de trayectoria. Conoce nuestra historia y por qué nos llamamos Cuerdabajo."
+  darkHeader
+>
+  <div class="page-top">
+    <Nosotros />
+  </div>
+  <Historia />
+</MainLayout>
+
+<style>
+  /* Deja aire bajo el header fijo en las páginas internas. */
+  .page-top :global(.nos) {
+    padding-top: clamp(6.5rem, 12vw, 9rem);
+  }
+</style>

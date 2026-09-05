@@ -1,0 +1,19 @@
+---
+import MainLayout from '../layouts/MainLayout.astro';
+import Musica from '../components/sections/Musica.astro';
+---
+
+<MainLayout
+  title="Música — Cuerdabajo"
+  description="Escucha la música de Cuerdabajo: Una Copa +, Baúl de Recuerdos y Bonita Hora de Avisar. Carranga con actitud desde Soacha."
+>
+  <div class="page-top">
+    <Musica />
+  </div>
+</MainLayout>
+
+<style>
+  .page-top :global(.mus) {
+    padding-top: clamp(6.5rem, 12vw, 9rem);
+  }
+</style>

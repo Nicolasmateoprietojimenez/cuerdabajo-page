@@ -1,0 +1,21 @@
+/**
+ * Tipografía de marca — CuerdaFont
+ *
+ * Fuente oficial de Cuerdabajo (identidad_visual/CuerdaFont). Un único peso
+ * disponible: Regular (400), sin itálica. Uso previsto: DISPLAY / branding y
+ * titulares, no texto de lectura larga (ver global.css → --font-display).
+ *
+ * Los archivos originales de identidad_visual permanecen intactos; aquí se usan
+ * copias en src/assets/fonts (woff2 generado para rendimiento, con OTF/TTF de
+ * respaldo).
+ */
+@font-face {
+  font-family: 'CuerdaFont';
+  src:
+    url('../assets/fonts/Cuerdafont-Regular.woff2') format('woff2'),
+    url('../assets/fonts/Cuerdafont-Regular.otf') format('opentype'),
+    url('../assets/fonts/Cuerdafont-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}

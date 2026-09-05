@@ -1,0 +1,159 @@
+---
+/**
+ * Contacto — formulario centrado sobre foto de fondo.
+ * Foto: public/images/formcotacto.jpeg
+ */
+import { site } from '../../data/site';
+
+const waDigits = site.contact.whatsapp.replace(/\D/g, '');
+const eventTypes = [
+  'Festival',
+  'Empresa',
+  'Universidad',
+  'Alcaldía',
+  'Matrimonio',
+  'Feria / evento cultural',
+  'Evento privado',
+  'Otro',
+];
+---
+
+<section id="contacto" class="sec contacto">
+  <div class="contacto-inner">
+    <div class="contacto-head" data-reveal>
+      <span class="kicker">Contacto</span>
+      <h2 class="display display--lg contacto-title">Contrátanos</h2>
+      <p class="contacto-lead">
+        Cuéntanos de tu evento y te enviamos disponibilidad y cotización. Respuesta rápida por
+        WhatsApp.
+      </p>
+    </div>
+
+    <form id="contacto-form" class="form" data-wa={waDigits} data-reveal style="--reveal-delay:100ms" novalidate>
+      <div class="field">
+        <label for="c-nombre">Nombre</label>
+        <input id="c-nombre" name="nombre" type="text" autocomplete="name" required />
+      </div>
+      <div class="field-row">
+        <div class="field">
+          <label for="c-tel">Teléfono</label>
+          <input id="c-tel" name="telefono" type="tel" autocomplete="tel" inputmode="tel" required />
+        </div>
+        <div class="field">
+          <label for="c-fecha">Fecha del evento</label>
+          <input id="c-fecha" name="fecha" type="date" />
+        </div>
+      </div>
+      <div class="field">
+        <label for="c-tipo">Tipo de evento</label>
+        <select id="c-tipo" name="tipo" required>
+          <option value="" selected disabled>Selecciona…</option>
+          {eventTypes.map((t) => <option value={t}>{t}</option>)}
+        </select>
+      </div>
+      <div class="field">
+        <label for="c-msg">Mensaje</label>
+        <textarea id="c-msg" name="mensaje" rows="4" placeholder="Ciudad, lugar, número de asistentes…"></textarea>
+      </div>
+      <button type="submit" class="submit">Enviar por WhatsApp</button>
+      <p class="form-note">Se abrirá WhatsApp con tu mensaje listo para enviar.</p>
+    </form>
+  </div>
+</section>
+
+<script>
+  const form = document.getElementById('contacto-form') as HTMLFormElement | null;
+  if (form) {
+    const wa = form.dataset.wa ?? '';
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (!form.reportValidity()) return;
+      const d = new FormData(form);
+      const g = (k: string): string => ((d.get(k) as string) ?? '').trim();
+      const lines = [
+        '¡Hola Cuerdabajo! Quiero cotizar una presentación.',
+        '',
+        `• Nombre: ${g('nombre')}`,
+        `• Teléfono: ${g('telefono')}`,
+        `• Tipo de evento: ${g('tipo')}`,
+        g('fecha') ? `• Fecha: ${g('fecha')}` : '',
+        g('mensaje') ? `• Detalles: ${g('mensaje')}` : '',
+      ].filter(Boolean);
+      window.open(`https://wa.me/${wa}?text=${encodeURIComponent(lines.join('\n'))}`, '_blank', 'noopener');
+    });
+  }
+</script>
+
+<style>
+  .contacto {
+    position: relative;
+    isolation: isolate;
+    background-image: url('/images/formcotacto.jpeg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
+  }
+  /* Overlay oscuro + tinte de marca para que el formulario resalte. */
+  .contacto::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    background:
+      radial-gradient(120% 90% at 50% 0%, rgba(240, 118, 26, 0.18), transparent 55%),
+      linear-gradient(rgba(18, 16, 14, 0.86), rgba(18, 16, 14, 0.78));
+  }
+  .contacto-inner {
+    max-width: 40rem;
+    margin-inline: auto;
+    padding-inline: clamp(1rem, 1.8vw, 1.5rem);
+    text-align: center;
+  }
+  .contacto-head .kicker {
+    justify-content: center;
+    color: var(--color-primary);
+  }
+  .contacto-head :global(.display) {
+    color: #fff;
+  }
+  .contacto-lead {
+    margin: 1rem auto 2rem;
+    max-width: 30rem;
+    font-size: 1.05rem;
+    line-height: 1.6;
+    color: #e7dbcb;
+  }
+
+  .form {
+    display: grid;
+    gap: 1rem;
+    text-align: left;
+    background: color-mix(in srgb, var(--color-surface) 96%, transparent);
+    padding: clamp(1.5rem, 4vw, 2.5rem);
+    border-radius: var(--radius-xl);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 24px 60px rgba(0, 0, 0, 0.45);
+    backdrop-filter: blur(2px);
+  }
+  .field-row { display: grid; gap: 1rem; }
+  .field { display: flex; flex-direction: column; gap: 0.4rem; }
+  .field label { font-size: var(--text-small); font-weight: 600; color: var(--color-foreground); }
+  .field input, .field select, .field textarea {
+    width: 100%; padding: 0.75rem 0.9rem; border: 1px solid var(--color-border);
+    border-radius: var(--radius-sm); background: var(--color-background);
+    color: var(--color-foreground); font: inherit;
+  }
+  .field textarea { resize: vertical; }
+  .field input:focus-visible, .field select:focus-visible, .field textarea:focus-visible {
+    outline: 2px solid var(--color-primary); outline-offset: 1px; border-color: var(--color-primary);
+  }
+  .submit {
+    margin-top: 0.25rem; padding: 0.95rem 1.5rem; border: none; border-radius: var(--radius-full);
+    background: var(--color-primary); color: #fff; font-size: var(--text-body); font-weight: 700;
+    cursor: pointer; box-shadow: var(--shadow-sm); transition: background-color var(--transition-fast) var(--ease-brand);
+  }
+  .submit:hover { background: color-mix(in srgb, var(--color-primary) 88%, #000); }
+  .form-note { margin: 0; font-size: var(--text-caption); color: var(--color-foreground-muted); text-align: center; }
+
+  @media (min-width: 560px) { .field-row { grid-template-columns: 1fr 1fr; } }
+</style>

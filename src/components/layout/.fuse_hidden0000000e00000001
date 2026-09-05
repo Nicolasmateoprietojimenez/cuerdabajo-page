@@ -1,0 +1,331 @@
+---
+/**
+ * Header — cabecera principal de Cuerdabajo.
+ *
+ * Izquierda: logo (monograma CB) + nombre de la agrupación.
+ * Derecha: navegación (Inicio, Nosotros, Música, Galería) + Contacto destacado.
+ * Fijo y transparente sobre el Hero; adquiere fondo al hacer scroll.
+ * En mobile: logo + botón de menú accesible que despliega la navegación.
+ */
+import { mainNav, cta } from '../../data/navigation';
+import { site } from '../../data/site';
+
+// Los enlaces del menú (sin el ítem que se muestra como botón "Contacto").
+const links = mainNav.filter((item) => item.href !== cta.href);
+---
+
+<header id="site-header" class="site-header">
+  <nav class="nav container" aria-label="Navegación principal">
+    <!-- Izquierda: logo + nombre -->
+    <a class="brand" href="#inicio" aria-label={`${site.name} — Inicio`}>
+      <img class="brand-logo" src="/images/logo.png" alt="" width="44" height="44" />
+      <span class="brand-name">{site.name}</span>
+    </a>
+
+    <!-- Derecha: navegación (desktop) -->
+    <ul class="nav-list">
+      {
+        links.map((item) => (
+          <li>
+            <a class="nav-link" href={item.href}>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a class="nav-cta" href={cta.href}>{cta.label}</a>
+      </li>
+    </ul>
+
+    <!-- Botón de menú (mobile) -->
+    <button
+      type="button"
+      id="nav-toggle"
+      class="nav-toggle"
+      aria-expanded="false"
+      aria-controls="mobile-menu"
+      aria-label="Abrir menú"
+    >
+      <svg class="icon-menu" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <line x1="4" y1="7" x2="20" y2="7" stroke-width="2" stroke-linecap="round"></line>
+        <line x1="4" y1="12" x2="20" y2="12" stroke-width="2" stroke-linecap="round"></line>
+        <line x1="4" y1="17" x2="20" y2="17" stroke-width="2" stroke-linecap="round"></line>
+      </svg>
+      <svg class="icon-close" viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+        <line x1="6" y1="6" x2="18" y2="18" stroke-width="2" stroke-linecap="round"></line>
+        <line x1="18" y1="6" x2="6" y2="18" stroke-width="2" stroke-linecap="round"></line>
+      </svg>
+    </button>
+  </nav>
+
+  <!-- Panel de navegación (mobile) -->
+  <div id="mobile-menu" class="mobile-menu" hidden>
+    <ul class="mobile-list">
+      {
+        links.map((item) => (
+          <li>
+            <a class="mobile-link" href={item.href} data-nav-link>
+              {item.label}
+            </a>
+          </li>
+        ))
+      }
+      <li>
+        <a class="mobile-cta" href={cta.href} data-nav-link>{cta.label}</a>
+      </li>
+    </ul>
+  </div>
+</header>
+
+<script>
+  const header = document.getElementById('site-header');
+  const toggle = document.getElementById('nav-toggle');
+  const menu = document.getElementById('mobile-menu');
+
+  if (header && toggle && menu) {
+    const openMenu = (): void => {
+      menu.hidden = false;
+      toggle.setAttribute('aria-expanded', 'true');
+      toggle.setAttribute('aria-label', 'Cerrar menú');
+      header.classList.add('is-open');
+    };
+    const closeMenu = (returnFocus = false): void => {
+      menu.hidden = true;
+      toggle.setAttribute('aria-expanded', 'false');
+      toggle.setAttribute('aria-label', 'Abrir menú');
+      header.classList.remove('is-open');
+      if (returnFocus) toggle.focus();
+    };
+
+    toggle.addEventListener('click', () => {
+      toggle.getAttribute('aria-expanded') === 'true' ? closeMenu() : openMenu();
+    });
+    menu.querySelectorAll('[data-nav-link]').forEach((link) => {
+      link.addEventListener('click', () => closeMenu());
+    });
+    document.addEventListener('keydown', (event) => {
+      if (event.key === 'Escape' && toggle.getAttribute('aria-expanded') === 'true') closeMenu(true);
+    });
+    const desktop = window.matchMedia('(min-width: 768px)');
+    desktop.addEventListener('change', (event) => {
+      if (event.matches) closeMenu();
+    });
+
+    const updateScrollState = (): void => {
+      header.classList.toggle('is-scrolled', window.scrollY > 8);
+    };
+    updateScrollState();
+    window.addEventListener('scroll', updateScrollState, { passive: true });
+  }
+</script>
+
+<style>
+  .site-header {
+    position: fixed;
+    inset: 0 0 auto 0;
+    z-index: 50;
+    width: 100%;
+    background: transparent;
+  }
+
+  .nav {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-gutter);
+    height: 4.5rem;
+  }
+
+  /* ---------- Marca (logo + nombre) ---------- */
+  .brand {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6rem;
+    text-decoration: none;
+    color: var(--color-foreground);
+  }
+  .brand-logo {
+    width: 2.75rem;
+    height: 2.75rem;
+    object-fit: contain;
+    flex: none;
+  }
+  .brand-name {
+    font-family: var(--font-display);
+    font-size: 1.6rem;
+    line-height: 1;
+    letter-spacing: 0.01em;
+    color: var(--color-foreground);
+  }
+
+  /* ---------- Navegación desktop ---------- */
+  .nav-list {
+    display: none;
+    align-items: center;
+    gap: 2rem;
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .nav-link {
+    position: relative;
+    display: inline-block;
+    padding: 0.4rem 0;
+    color: var(--color-foreground);
+    font-size: var(--text-small);
+    font-weight: 600;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+  }
+  .nav-link::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: -0.1rem;
+    height: 2px;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  .nav-link:hover {
+    color: var(--color-primary);
+  }
+  .nav-link:hover::after,
+  .nav-link:focus-visible::after {
+    transform: scaleX(1);
+  }
+
+  /* ---------- CTA Contacto ---------- */
+  .nav-cta,
+  .mobile-cta {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.6rem 1.35rem;
+    border-radius: var(--radius-full);
+    background: var(--color-primary);
+    color: #fff;
+    font-size: var(--text-small);
+    font-weight: 700;
+    letter-spacing: 0.02em;
+    text-decoration: none;
+    box-shadow: var(--shadow-sm);
+  }
+  .nav-cta:hover,
+  .mobile-cta:hover {
+    background: color-mix(in srgb, var(--color-primary) 88%, #000);
+  }
+
+  /* ---------- Botón de menú (mobile) ---------- */
+  .nav-toggle {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    padding: 0;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-foreground);
+    cursor: pointer;
+  }
+  .nav-toggle svg {
+    width: 1.6rem;
+    height: 1.6rem;
+  }
+  .icon-close {
+    display: none;
+  }
+  .site-header.is-open .icon-menu {
+    display: none;
+  }
+  .site-header.is-open .icon-close {
+    display: block;
+  }
+
+  /* ---------- Panel mobile ---------- */
+  .mobile-menu {
+    background: var(--color-surface);
+    border-top: 1px solid var(--color-border);
+    box-shadow: var(--shadow-md);
+  }
+  .mobile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    margin: 0;
+    padding: 0.75rem 1.25rem 1.25rem;
+    list-style: none;
+  }
+  .mobile-link {
+    display: block;
+    padding: 0.85rem 0.5rem;
+    border-radius: var(--radius-sm);
+    color: var(--color-foreground);
+    font-size: var(--text-body);
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .mobile-link:hover {
+    color: var(--color-primary);
+    background: var(--color-background-secondary);
+  }
+  .mobile-cta {
+    margin-top: 0.5rem;
+    width: 100%;
+    padding-block: 0.85rem;
+  }
+
+  /* ---------- Estado al hacer scroll / menú abierto ---------- */
+  .site-header.is-scrolled {
+    background: color-mix(in srgb, var(--color-surface) 82%, transparent);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--color-border);
+    box-shadow: var(--shadow-sm);
+  }
+  .site-header.is-open {
+    background: var(--color-surface);
+  }
+
+  /* ---------- Focus visible ---------- */
+  .brand:focus-visible,
+  .nav-link:focus-visible,
+  .nav-cta:focus-visible,
+  .nav-toggle:focus-visible,
+  .mobile-link:focus-visible,
+  .mobile-cta:focus-visible {
+    outline: 2px solid var(--color-primary);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .site-header {
+      transition:
+        background-color var(--transition-normal) var(--ease-brand),
+        box-shadow var(--transition-normal) var(--ease-brand);
+    }
+    .nav-link::after {
+      transition: transform var(--transition-fast) var(--ease-brand);
+    }
+    .nav-cta,
+    .mobile-cta {
+      transition: background-color var(--transition-fast) var(--ease-brand);
+    }
+  }
+
+  @media (min-width: 768px) {
+    .nav-list {
+      display: flex;
+    }
+    .nav-toggle,
+    .mobile-menu {
+      display: none;
+    }
+  }
+</style>

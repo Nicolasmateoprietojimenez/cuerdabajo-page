@@ -1,0 +1,379 @@
+---
+/**
+ * Historia — feed vertical estilo TikTok con los videos de cada evento.
+ * Móvil: swipe con scroll-snap + autoplay al entrar en pantalla.
+ * Escritorio: "teléfono" centrado con flechas ↑↓.
+ */
+import { reels } from '../../data/historia';
+const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<section id="historia" class="sec sec--dark hist">
+  <div class="sec-inner hist-inner">
+    <div class="hist-head" data-reveal>
+      <span class="kicker">Nuestra historia</span>
+      <h2 class="display display--lg">Así lo vivimos</h2>
+      <p class="hist-sub">Desliza el feed y revive cada presentación. Puro Cuerdabajo, evento por evento.</p>
+    </div>
+
+    <div class="feed-wrap" data-reveal>
+      <div class="feed-shell">
+      <div class="feed" id="feed">
+        {
+          reels.map((r) => (
+            <article class={`reel${r.vertical ? ' is-vertical' : ''}`} data-id={r.id}>
+              <div class="reel-video" style={`background-image:url(${thumb(r.id)})`}>
+                <span class="reel-tap" aria-hidden="true"></span>
+                <span class="reel-loader" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+                </span>
+                <div class="reel-caption">
+                  <div class="reel-user">
+                    <span class="reel-title">{r.title}</span>
+                    <span class="reel-date">· {r.date}</span>
+                  </div>
+                  <p class="reel-desc">{r.desc}</p>
+                  <div class="reel-song">
+                    <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M9 18V5l10-2v13"/><circle cx="6" cy="18" r="3"/><circle cx="16" cy="16" r="3"/></svg>
+                    <span>Cuerdabajo · {r.song}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Rail de acciones (decorativo) -->
+              <div class="reel-rail">
+                <div class="rail-ava">
+                  <img src="/images/logo.png" alt="" width="44" height="44" />
+                  <span class="rail-plus" aria-hidden="true">+</span>
+                </div>
+                <button class="rail-btn" type="button" aria-label="Me gusta">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 21S3 14.5 3 8.8C3 5.9 5.2 4 7.6 4c1.7 0 3.2 1 4.4 2.5C13.2 5 14.7 4 16.4 4 18.8 4 21 5.9 21 8.8 21 14.5 12 21 12 21z"/></svg>
+                  <span>{r.likes}</span>
+                </button>
+                <button class="rail-btn" type="button" aria-label="Comentarios">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 4h16v12H8l-4 4V4z"/></svg>
+                  <span>{r.comments}</span>
+                </button>
+                <button class="rail-btn" type="button" aria-label="Guardar">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M6 3h12v18l-6-4-6 4V3z"/></svg>
+                  <span>{r.saves}</span>
+                </button>
+                <button class="rail-btn" type="button" aria-label="Compartir">
+                  <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3l8 8-8 8v-4.5C7 14 4 17 3 21c0-8 4-11 10-11.5V3z"/></svg>
+                  <span>{r.shares}</span>
+                </button>
+                <button class="rail-btn reel-mute" type="button" aria-label="Activar sonido">
+                  <svg class="ic-muted" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4zM19 5l-2 2M17 5l2 2" stroke="currentColor" stroke-width="1.6"/><path d="M16 8l5 8M21 8l-5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <svg class="ic-sound" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a5 5 0 0 1 0 8M18.5 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                </button>
+                <div class="rail-disc" aria-hidden="true">
+                  <img src="/images/logo.png" alt="" width="34" height="34" />
+                </div>
+              </div>
+
+            </article>
+          ))
+        }
+      </div>
+
+      <!-- Chrome superior (decorativo) -->
+      <div class="feed-top" aria-hidden="true">
+        <span class="ft-live">◉ LIVE</span>
+        <span class="ft-tabs"><span>Siguiendo</span><b>Para ti</b></span>
+        <span class="ft-search">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        </span>
+      </div>
+
+      <!-- Barra inferior (decorativa) -->
+      <nav class="feed-bottom" aria-hidden="true">
+        <span class="fb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M3 11l9-8 9 8v10h-6v-6H9v6H3z"/></svg>Inicio</span>
+        <span class="fb"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>Buscar</span>
+        <span class="fb fb-plus"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 8h16v8H4z"/><path d="M12 5v14M5 12h14" stroke="#000" stroke-width="2.5"/></svg></span>
+        <span class="fb"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M4 5h16v11H8l-4 4V5z"/></svg>Bandeja</span>
+        <span class="fb"><svg viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6z"/></svg>Perfil</span>
+      </nav>
+
+      </div>
+
+      <!-- Flechas (escritorio) -->
+      <div class="feed-arrows">
+        <button class="feed-up" type="button" aria-label="Anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>
+        </button>
+        <button class="feed-down" type="button" aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  const feed = document.getElementById('feed');
+  if (feed) {
+    let muted = true;
+    const src = (id: string): string =>
+      `https://www.youtube-nocookie.com/embed/${id}?autoplay=1&mute=${muted ? 1 : 0}&loop=1&playlist=${id}&controls=0&modestbranding=1&rel=0&playsinline=1`;
+
+    const deactivate = (reel: Element): void => {
+      reel.classList.remove('is-active');
+      reel.querySelector('iframe')?.remove();
+    };
+    const activate = (reel: HTMLElement): void => {
+      if (reel.classList.contains('is-active')) return;
+      feed.querySelectorAll('.reel.is-active').forEach(deactivate);
+      reel.classList.add('is-active');
+      const wrap = reel.querySelector('.reel-video');
+      if (!wrap) return;
+      const iframe = document.createElement('iframe');
+      iframe.src = src(reel.dataset.id ?? '');
+      iframe.allow = 'autoplay; encrypted-media; picture-in-picture';
+      iframe.setAttribute('allowfullscreen', '');
+      wrap.appendChild(iframe);
+    };
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting && e.intersectionRatio >= 0.6) activate(e.target as HTMLElement);
+        });
+      },
+      { root: feed, threshold: [0, 0.6, 1] },
+    );
+    feed.querySelectorAll('.reel').forEach((r) => io.observe(r));
+
+    const toggleMute = (): void => {
+      muted = !muted;
+      feed.classList.toggle('is-muted', muted);
+      const active = feed.querySelector('.reel.is-active');
+      const f = active?.querySelector('iframe');
+      if (f && active) (f as HTMLIFrameElement).src = src((active as HTMLElement).dataset.id ?? '');
+    };
+    feed.classList.add('is-muted');
+    feed.querySelectorAll('.reel-mute').forEach((b) =>
+      b.addEventListener('click', (ev) => {
+        ev.stopPropagation();
+        toggleMute();
+      }),
+    );
+    feed.querySelectorAll('.reel-tap').forEach((t) => t.addEventListener('click', toggleMute));
+
+    const step = (): number => feed.clientHeight;
+    document.querySelector('.feed-up')?.addEventListener('click', () =>
+      feed.scrollBy({ top: -step(), behavior: 'smooth' }),
+    );
+    document.querySelector('.feed-down')?.addEventListener('click', () =>
+      feed.scrollBy({ top: step(), behavior: 'smooth' }),
+    );
+  }
+</script>
+
+<style>
+  .hist-inner { display: grid; gap: clamp(2rem, 5vw, 3rem); }
+  .hist-head { max-width: 42rem; }
+  .hist .display { color: #fff; }
+  .hist-sub { margin: 1rem 0 0; font-size: 1.05rem; line-height: 1.6; color: #b8ac99; }
+
+  .feed-wrap {
+    position: relative;
+    width: 100%;
+    margin-inline: auto;
+  }
+  .feed-shell {
+    position: relative;
+    width: 100%;
+    height: 85svh;
+    max-height: 780px;
+    background: #000;
+    overflow: hidden;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+  }
+  .feed {
+    position: absolute;
+    inset: 0;
+    overflow-y: scroll;
+    scroll-snap-type: y mandatory;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+  .feed::-webkit-scrollbar { display: none; }
+
+  .reel {
+    position: relative;
+    height: 100%;
+    scroll-snap-align: start;
+    scroll-snap-stop: always;
+    background: #000;
+    overflow: hidden;
+  }
+  .reel-video {
+    position: absolute;
+    inset: 0;
+    background-size: cover;
+    background-position: center;
+  }
+  .reel-video::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    pointer-events: none;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 38%),
+      linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 22%);
+  }
+  /* Video 16:9 centrado (letterbox) */
+  .reel-video :global(iframe) {
+    position: absolute;
+    top: 50%;
+    left: 0;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    transform: translateY(-50%);
+    border: 0;
+    z-index: 1;
+  }
+  .reel.is-vertical .reel-video :global(iframe) {
+    top: 0;
+    height: 100%;
+    aspect-ratio: auto;
+    transform: none;
+    object-fit: cover;
+  }
+  .reel-tap { position: absolute; inset: 0; z-index: 3; cursor: pointer; }
+  .reel-loader {
+    position: absolute; inset: 0; margin: auto; z-index: 3;
+    width: 4rem; height: 4rem; display: grid; place-items: center;
+    border-radius: var(--radius-full); background: rgba(0, 0, 0, 0.45);
+    color: #fff; pointer-events: none;
+  }
+  .reel-loader svg { width: 1.8rem; height: 1.8rem; margin-left: 0.2rem; }
+  .reel.is-active .reel-loader { display: none; }
+  .reel.is-active .reel-video::after { background: linear-gradient(to top, rgba(0,0,0,.75), transparent 38%); }
+
+  /* Rail */
+  .reel-rail {
+    position: absolute;
+    right: 0.6rem;
+    bottom: 5.5rem;
+    z-index: 4;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 1.15rem;
+    color: #fff;
+  }
+  .rail-ava { position: relative; margin-bottom: 0.4rem; }
+  .rail-ava img { width: 2.75rem; height: 2.75rem; border-radius: var(--radius-full); border: 2px solid #fff; background: #fff; object-fit: contain; }
+  .rail-plus {
+    position: absolute; left: 50%; bottom: -0.6rem; transform: translateX(-50%);
+    width: 1.25rem; height: 1.25rem; display: grid; place-items: center;
+    background: var(--color-primary); color: #fff; border-radius: var(--radius-full);
+    font-size: 0.85rem; font-weight: 700; line-height: 1;
+  }
+  .rail-btn {
+    display: flex; flex-direction: column; align-items: center; gap: 0.2rem;
+    background: none; border: 0; color: #fff; cursor: pointer;
+    font-size: 0.72rem; font-weight: 600;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
+  }
+  .rail-btn svg { width: 2rem; height: 2rem; }
+  .reel-mute .ic-sound { display: none; }
+  .feed:not(.is-muted) .reel-mute .ic-muted { display: none; }
+  .feed:not(.is-muted) .reel-mute .ic-sound { display: block; }
+  .rail-disc {
+    width: 2.6rem; height: 2.6rem; border-radius: var(--radius-full);
+    display: grid; place-items: center; background: #1e1e1e;
+    border: 3px solid #333; margin-top: 0.2rem;
+    animation: spin 4s linear infinite;
+  }
+  .rail-disc img { width: 1.4rem; height: 1.4rem; border-radius: var(--radius-full); filter: invert(1); }
+  @keyframes spin { to { transform: rotate(360deg); } }
+  @media (prefers-reduced-motion: reduce) { .rail-disc { animation: none; } }
+
+  /* Caption */
+  .reel-caption {
+    position: absolute;
+    left: 0.9rem;
+    right: 4.5rem;
+    bottom: 4.6rem;
+    z-index: 4;
+    color: #fff;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6);
+  }
+  .reel-user { display: flex; flex-wrap: wrap; align-items: baseline; gap: 0.4rem; }
+  .reel-title { font-family: var(--font-heading); font-size: 1.25rem; letter-spacing: -0.01em; text-transform: uppercase; }
+  .reel-date { font-size: 0.8rem; opacity: 0.85; }
+  .reel-desc { margin: 0.4rem 0 0.6rem; font-size: 0.9rem; line-height: 1.4; }
+  .reel-song { display: inline-flex; align-items: center; gap: 0.45rem; font-size: 0.82rem; }
+  .reel-song svg { width: 0.95rem; height: 0.95rem; }
+
+  /* Chrome superior */
+  .feed-top {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 6;
+    display: flex; align-items: center; justify-content: center; gap: 1.25rem;
+    padding: 0.9rem 1rem; color: #fff; pointer-events: none;
+    background: linear-gradient(rgba(0, 0, 0, 0.35), transparent);
+    font-size: 0.95rem;
+  }
+  .ft-live { position: absolute; left: 1rem; font-size: 0.7rem; font-weight: 700; }
+  .ft-tabs { display: flex; gap: 1rem; align-items: baseline; }
+  .ft-tabs span { opacity: 0.7; }
+  .ft-tabs b { position: relative; }
+  .ft-tabs b::after { content: ''; position: absolute; left: 50%; bottom: -0.35rem; transform: translateX(-50%); width: 1.5rem; height: 2px; background: #fff; }
+  .ft-search { position: absolute; right: 1rem; }
+  .ft-search svg { width: 1.3rem; height: 1.3rem; }
+
+  /* Barra inferior */
+  .feed-bottom {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 6;
+    display: flex; justify-content: space-around; align-items: center;
+    padding: 0.5rem 0.5rem calc(0.5rem + env(safe-area-inset-bottom, 0));
+    background: #000; color: #fff; pointer-events: none;
+  }
+  .fb { display: flex; flex-direction: column; align-items: center; gap: 0.15rem; font-size: 0.6rem; opacity: 0.9; }
+  .fb svg { width: 1.5rem; height: 1.5rem; }
+  .fb-plus svg { width: 2.7rem; height: 1.9rem; }
+
+  /* Flechas escritorio */
+  .feed-arrows { display: none; }
+  .feed-up, .feed-down {
+    display: grid; place-items: center;
+    width: 2.75rem; height: 2.75rem; border-radius: var(--radius-full);
+    border: 0; background: rgba(255, 255, 255, 0.12); color: #fff; cursor: pointer;
+    backdrop-filter: blur(4px);
+  }
+  .feed-up:hover, .feed-down:hover { background: var(--color-primary); }
+  .feed-up svg, .feed-down svg { width: 1.4rem; height: 1.4rem; }
+
+  /* Escritorio: teléfono centrado + flechas */
+  @media (min-width: 760px) {
+    .feed-wrap { width: min(72rem, 94vw); }
+    .feed-shell { height: min(72vh, 720px); border-radius: var(--radius-lg); background: #000; }
+    .feed-top, .feed-bottom { display: none; }
+    .reel {
+      display: flex; flex-direction: row; align-items: center; justify-content: center;
+      gap: 1.5rem; padding-inline: 1.25rem;
+    }
+    .reel-video {
+      position: relative; inset: auto; flex: 0 1 auto;
+      width: min(58rem, calc(100% - 5.5rem)); height: auto; aspect-ratio: 16 / 9;
+      border-radius: var(--radius-md); background-size: cover; background-position: center;
+    }
+    .reel.is-vertical .reel-video { width: auto; height: 100%; max-height: 100%; aspect-ratio: 9 / 16; }
+    .reel-video :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+    .reel-rail { position: static; bottom: auto; right: auto; flex: 0 0 auto; }
+    .reel-caption { left: 1rem; right: auto; bottom: 1rem; max-width: min(28rem, 70%); }
+    .feed-arrows {
+      display: flex; flex-direction: column; gap: 0.9rem;
+      position: absolute; right: -3.75rem; top: 50%; transform: translateY(-50%); z-index: 7;
+    }
+    .feed-up, .feed-down { background: rgba(255, 255, 255, 0.14); }
+    .feed-up:hover, .feed-down:hover { background: var(--color-primary); }
+  }
+  @media (min-width: 760px) and (max-width: 1120px) {
+    .feed-arrows { right: 0.6rem; }
+    .feed-up, .feed-down { background: rgba(0, 0, 0, 0.45); }
+  }
+</style>

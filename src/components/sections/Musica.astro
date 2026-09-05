@@ -1,0 +1,206 @@
+---
+/**
+ * Música — muro estilo canal (YouTube) + temas en Spotify.
+ * prop `compact`: versión resumida para la home.
+ */
+import { youtubeVideos, spotifyTracks, spotifyArtist, youtubeProfile } from '../../data/musica';
+
+interface Props {
+  compact?: boolean;
+}
+const { compact = false } = Astro.props;
+
+const featured = youtubeVideos.find((v) => v.featured) ?? youtubeVideos[0];
+const rest = youtubeVideos.filter((v) => v !== featured);
+const gridVideos = compact ? rest.slice(0, 2) : rest;
+const tracks = compact ? spotifyTracks.slice(0, 1) : spotifyTracks;
+
+const embedUrl = (v: { id: string; start?: number }): string =>
+  `https://www.youtube-nocookie.com/embed/${v.id}?autoplay=1&rel=0&modestbranding=1${v.start ? `&start=${v.start}` : ''}`;
+const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jpg`;
+---
+
+<section id="musica" class="sec sec--light mus">
+  <div class="sec-inner">
+    <div class="mus-head" data-reveal>
+      <div>
+        <span class="kicker">Música</span>
+        <h2 class="display display--lg">Nuestra música</h2>
+        <p class="mus-sub">Ponle play. Esto es lo que hacemos.</p>
+      </div>
+      <div class="mus-actions">
+        <a class="btn-yt" href={youtubeProfile} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M23 12s0-3.4-.4-5a2.8 2.8 0 0 0-2-2C18.8 4.5 12 4.5 12 4.5s-6.8 0-8.6.5a2.8 2.8 0 0 0-2 2C1 8.6 1 12 1 12s0 3.4.4 5a2.8 2.8 0 0 0 2 2c1.8.5 8.6.5 8.6.5s6.8 0 8.6-.5a2.8 2.8 0 0 0 2-2c.4-1.6.4-5 .4-5ZM10 15.5v-7l6 3.5-6 3.5Z"/></svg>
+          YouTube
+        </a>
+        <a class="btn-spotify" href={spotifyArtist} target="_blank" rel="noopener noreferrer">
+          <svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2a10 10 0 1 0 0 20 10 10 0 0 0 0-20Zm4.6 14.4a.6.6 0 0 1-.86.2c-2.35-1.44-5.3-1.76-8.79-.96a.62.62 0 1 1-.28-1.2c3.8-.88 7.08-.5 9.72 1.1.3.18.4.57.21.86Zm1.23-2.75a.78.78 0 0 1-1.07.26c-2.69-1.65-6.79-2.13-9.98-1.17a.78.78 0 1 1-.45-1.49c3.64-1.1 8.16-.56 11.25 1.33.36.22.48.7.25 1.07Zm.1-2.86C14.8 8.94 9.5 8.76 6.44 9.7a.94.94 0 1 1-.54-1.8c3.5-1.06 9.36-.85 13.06 1.34a.94.94 0 0 1-.96 1.62Z"/></svg>
+          Spotify
+        </a>
+      </div>
+    </div>
+
+    <!-- Video principal -->
+    <button class="featured vfacade" type="button" data-embed={embedUrl(featured)} aria-label={`Reproducir ${featured.title}`} data-reveal>
+      <img src={thumb(featured.id)} alt="" loading="lazy" />
+      <span class="featured-overlay" aria-hidden="true"></span>
+      <span class="vplay" aria-hidden="true">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+      </span>
+      <span class="featured-meta">
+        <span class="vtag">{featured.tag}</span>
+        <span class="featured-title">{featured.title}</span>
+      </span>
+    </button>
+
+    <!-- Grid de videos -->
+    <div class="vgrid">
+      {
+        gridVideos.map((v, i) => (
+          <div class="vcard" data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
+            <button class="vfacade" type="button" data-embed={embedUrl(v)} aria-label={`Reproducir ${v.title}`}>
+              <img src={thumb(v.id)} alt="" loading="lazy" />
+              <span class="vplay vplay--sm" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
+              </span>
+            </button>
+            <span class="vtag">{v.tag}</span>
+            <h3 class="vtitle">{v.title}</h3>
+          </div>
+        ))
+      }
+    </div>
+
+    <!-- Spotify -->
+    <div class="spotify" data-reveal>
+      <div class="spotify-head">
+        <h3 class="display display--md">En Spotify</h3>
+        <a class="spotify-follow" href={spotifyArtist} target="_blank" rel="noopener noreferrer">
+          Seguir en Spotify →
+        </a>
+      </div>
+      <div class="spotify-grid">
+        {
+          tracks.map((id) => (
+            <iframe
+              class="spotify-embed"
+              src={`https://open.spotify.com/embed/track/${id}?utm_source=generator&theme=0`}
+              title="Reproductor de Spotify"
+              loading="lazy"
+              allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture"
+            />
+          ))
+        }
+      </div>
+    </div>
+
+    {
+      compact && (
+        <a class="mus-more" href="/musica" data-reveal>
+          Ver toda la música
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" aria-hidden="true">
+            <path d="M4 12h15M13 6l6 6-6 6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+          </svg>
+        </a>
+      )
+    }
+  </div>
+</section>
+
+<script>
+  const play = (btn: HTMLElement): void => {
+    const src = btn.dataset.embed ?? '';
+    const wrap = document.createElement('div');
+    wrap.className = 'vframe';
+    const iframe = document.createElement('iframe');
+    iframe.src = src;
+    iframe.title = 'Video de Cuerdabajo';
+    iframe.allow =
+      'accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share';
+    iframe.allowFullscreen = true;
+    wrap.appendChild(iframe);
+    btn.replaceWith(wrap);
+  };
+  document.querySelectorAll<HTMLElement>('.vfacade').forEach((btn) => {
+    btn.addEventListener('click', () => play(btn));
+  });
+</script>
+
+<style>
+  .mus-head {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1.25rem;
+    align-items: end;
+    justify-content: space-between;
+    margin-bottom: 2rem;
+  }
+  .mus-sub { margin: 0.75rem 0 0; font-size: 1.05rem; color: var(--color-foreground-muted); }
+  .mus-actions { display: flex; gap: 0.75rem; }
+  .btn-yt, .btn-spotify {
+    display: inline-flex; align-items: center; gap: 0.5rem;
+    padding: 0.6rem 1.25rem; border-radius: var(--radius-full);
+    font-size: var(--text-small); font-weight: 700; text-decoration: none;
+  }
+  .btn-yt svg, .btn-spotify svg { width: 1.15rem; height: 1.15rem; }
+  .btn-yt { background: #1e1e1e; color: #fff; }
+  .btn-yt:hover { background: #000; }
+  .btn-spotify { background: #1db954; color: #05130a; }
+  .btn-spotify:hover { background: #1ed760; }
+
+  /* Facade base */
+  .vfacade {
+    position: relative; display: block; width: 100%; aspect-ratio: 16 / 9;
+    border: 0; padding: 0; cursor: pointer; background: #000; overflow: hidden;
+    border-radius: var(--radius-md);
+  }
+  .vfacade img { width: 100%; height: 100%; object-fit: cover; opacity: 0.85; transition: opacity var(--transition-normal) var(--ease-brand), transform var(--transition-slow) var(--ease-brand); }
+  .vfacade:hover img { opacity: 1; transform: scale(1.04); }
+  .vplay {
+    position: absolute; inset: 0; margin: auto; width: 4.5rem; height: 4.5rem;
+    display: grid; place-items: center; border-radius: var(--radius-full);
+    background: var(--color-primary); color: #fff; box-shadow: var(--shadow-lg);
+    transition: transform var(--transition-fast) var(--ease-brand);
+  }
+  .vplay svg { width: 2rem; height: 2rem; margin-left: 0.2rem; }
+  .vplay--sm { width: 3.25rem; height: 3.25rem; }
+  .vplay--sm svg { width: 1.4rem; height: 1.4rem; }
+  .vfacade:hover .vplay { transform: scale(1.08); }
+
+  /* Featured */
+  .featured { aspect-ratio: 16 / 8; border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+  .featured-overlay { position: absolute; inset: 0; background: linear-gradient(to top, rgba(20,18,15,.8), transparent 55%); }
+  .featured-meta { position: absolute; left: clamp(1rem,3vw,2rem); bottom: clamp(1rem,3vw,1.75rem); right: 1rem; text-align: left; display: grid; gap: 0.35rem; }
+  .featured-title { font-family: var(--font-heading); font-size: clamp(1.75rem, 6vw, 3.5rem); line-height: 0.95; letter-spacing: -0.03em; text-transform: uppercase; color: #fff; }
+
+  .vtag {
+    display: inline-block; font-size: var(--text-caption); font-weight: 700;
+    letter-spacing: 0.1em; text-transform: uppercase; color: var(--color-primary);
+  }
+  .featured .vtag { color: #ffb877; }
+
+  /* Grid */
+  .vgrid { display: grid; grid-template-columns: 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+  .vcard .vtag { margin-top: 0.75rem; }
+  .vtitle { margin: 0.2rem 0 0; font-family: var(--font-heading); font-size: clamp(1.25rem, 3vw, 1.6rem); letter-spacing: -0.02em; text-transform: uppercase; color: var(--color-foreground); }
+
+  /* Spotify */
+  .spotify { margin-top: 3rem; }
+  .spotify-head { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: baseline; justify-content: space-between; margin-bottom: 1.25rem; }
+  .spotify-follow { color: #1a9c47; font-weight: 700; font-size: var(--text-small); text-decoration: none; }
+  .spotify-follow:hover { color: #158a3d; }
+  .spotify-grid { display: grid; gap: 1rem; }
+  .spotify-embed { width: 100%; height: 152px; border: 0; border-radius: 12px; }
+
+  .mus-more { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 2rem; color: var(--color-foreground); font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: var(--text-small); text-decoration: none; }
+  .mus-more svg { width: 1.15rem; height: 1.15rem; color: var(--color-primary); transition: transform var(--transition-fast) var(--ease-brand); }
+  .mus-more:hover svg { transform: translateX(4px); }
+
+  :global(.vframe) { position: relative; aspect-ratio: 16 / 9; width: 100%; border-radius: var(--radius-md); overflow: hidden; background: #000; box-shadow: var(--shadow-md); }
+  :global(.vframe iframe) { position: absolute; inset: 0; width: 100%; height: 100%; border: 0; }
+
+  @media (min-width: 700px) {
+    .vgrid { grid-template-columns: repeat(3, 1fr); }
+    .spotify-grid { grid-template-columns: 1fr 1fr; }
+  }
+</style>

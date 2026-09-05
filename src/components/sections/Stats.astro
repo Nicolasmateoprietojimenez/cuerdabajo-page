@@ -1,0 +1,91 @@
+---
+/**
+ * Stats — cifras destacadas con contador animado. prop `dark`.
+ */
+import { stats } from '../../data/stats';
+interface Props {
+  dark?: boolean;
+}
+const { dark = true } = Astro.props;
+---
+
+<section class:list={['sec', dark ? 'sec--dark' : 'sec--light', 'stats']} data-stats>
+  <div class="sec-inner stats-grid">
+    {
+      stats.map((s) => (
+        <div class="stat" data-reveal>
+          <span class="stat-value" data-count={s.value} data-suffix={s.suffix ?? ''}>
+            0
+          </span>
+          <span class="stat-label">{s.label}</span>
+        </div>
+      ))
+    }
+  </div>
+</section>
+
+<script>
+  const section = document.querySelector('[data-stats]');
+  if (section) {
+    const fmt = (n: number): string => n.toLocaleString('es-CO');
+    const animate = (el: HTMLElement): void => {
+      const target = Number(el.dataset.count ?? '0');
+      const suffix = el.dataset.suffix ?? '';
+      const dur = 1400;
+      const start = performance.now();
+      const step = (now: number): void => {
+        const p = Math.min((now - start) / dur, 1);
+        const eased = 1 - Math.pow(1 - p, 3);
+        el.textContent = fmt(Math.round(target * eased)) + suffix;
+        if (p < 1) requestAnimationFrame(step);
+      };
+      requestAnimationFrame(step);
+    };
+    const io = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((e) => {
+          if (e.isIntersecting) {
+            section.querySelectorAll<HTMLElement>('.stat-value').forEach(animate);
+            io.disconnect();
+          }
+        });
+      },
+      { threshold: 0.3 },
+    );
+    io.observe(section);
+  }
+</script>
+
+<style>
+  .stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: clamp(1.5rem, 4vw, 3rem);
+  }
+  .stat {
+    text-align: center;
+  }
+  .stat-value {
+    display: block;
+    font-family: var(--font-heading);
+    font-size: clamp(2.5rem, 8vw, 4.5rem);
+    letter-spacing: -0.02em;
+    line-height: 1;
+    color: var(--color-primary);
+  }
+  .stat-label {
+    display: block;
+    margin-top: 0.5rem;
+    font-size: var(--text-small);
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: 0.02em;
+    color: currentColor;
+    opacity: 0.85;
+  }
+  @media (min-width: 800px) {
+    .stats-grid {
+      grid-template-columns: repeat(4, 1fr);
+    }
+  }
+</style>
