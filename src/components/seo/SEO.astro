@@ -1,38 +1,49 @@
 ---
 /**
  * SEO — metadatos reutilizables para <head>.
- *
- * Centraliza <title>, description, canonical, Open Graph y Twitter/X Cards.
- * La URL base sale SIEMPRE de la configuración global (site.url); no se
- * hardcodea en varios archivos.
+ * Título, descripción, canonical, Open Graph, Twitter Cards y datos
+ * estructurados (JSON-LD MusicGroup).
  */
 import { site } from '../../data/site';
+import { social } from '../../data/social';
 
 interface Props {
   title: string;
   description: string;
-  /** Ruta o URL de la imagen social (opcional). */
   image?: string;
-  /** URL canónica explícita (opcional); por defecto la ruta actual. */
   canonicalURL?: string;
-  /** Tipo Open Graph. */
   type?: 'website' | 'article';
 }
 
 const { title, description, image, canonicalURL, type = 'website' } = Astro.props;
 
-// URL canónica absoluta a partir de la configuración global.
 const canonical = new URL(canonicalURL ?? Astro.url.pathname, site.url).href;
-
-// Imagen social: prop → valor por defecto de site → ninguna. Resuelta a absoluta.
 const resolvedImage = image ?? site.ogImage;
 const ogImage = resolvedImage ? new URL(resolvedImage, site.url).href : undefined;
+
+// Datos estructurados: agrupación musical.
+const schema = {
+  '@context': 'https://schema.org',
+  '@type': 'MusicGroup',
+  name: site.name,
+  url: site.url,
+  logo: new URL('/images/logo.png', site.url).href,
+  image: ogImage,
+  description: site.shortDescription,
+  genre: ['Carranga', 'Música carranguera', 'Música campesina colombiana'],
+  foundingLocation: { '@type': 'Place', name: site.city },
+  email: site.contact.email,
+  sameAs: social.map((s) => s.url).filter((u) => u && u !== '#'),
+};
 ---
 
 <!-- Primary -->
 <title>{title}</title>
 <meta name="description" content={description} />
 <link rel="canonical" href={canonical} />
+<meta name="robots" content="index, follow" />
+<meta name="author" content={site.name} />
+<meta name="theme-color" content="#1e1e1e" />
 
 <!-- Open Graph -->
 <meta property="og:type" content={type} />
@@ -42,9 +53,14 @@ const ogImage = resolvedImage ? new URL(resolvedImage, site.url).href : undefine
 <meta property="og:site_name" content={site.name} />
 <meta property="og:locale" content={site.locale} />
 {ogImage && <meta property="og:image" content={ogImage} />}
+{ogImage && <meta property="og:image:width" content="1200" />}
+{ogImage && <meta property="og:image:height" content="630" />}
 
 <!-- Twitter / X Cards -->
 <meta name="twitter:card" content={ogImage ? 'summary_large_image' : 'summary'} />
 <meta name="twitter:title" content={title} />
 <meta name="twitter:description" content={description} />
 {ogImage && <meta name="twitter:image" content={ogImage} />}
+
+<!-- Datos estructurados -->
+<script type="application/ld+json" set:html={JSON.stringify(schema)} />
