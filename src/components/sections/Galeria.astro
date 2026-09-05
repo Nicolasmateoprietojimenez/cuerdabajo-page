@@ -176,9 +176,9 @@ const fulls = await Promise.all(images.map((img) => getImage({ src: img, width: 
   }
   .lightbox.is-open .lb-img { transform: scale(1); }
   .lb-btn {
-    position: absolute; display: grid; place-items: center;
+    position: absolute; z-index: 3; display: grid; place-items: center;
     width: 3rem; height: 3rem; border: 0; border-radius: var(--radius-full);
-    background: rgba(255,255,255,.12); color: #fff; cursor: pointer;
+    background: rgba(255,255,255,.14); color: #fff; cursor: pointer;
   }
   .lb-btn:hover { background: var(--color-primary); }
   .lb-btn svg { width: 1.5rem; height: 1.5rem; }
@@ -186,7 +186,7 @@ const fulls = await Promise.all(images.map((img) => getImage({ src: img, width: 
   .lb-prev { left: clamp(0.5rem, 2vw, 1.5rem); top: 50%; transform: translateY(-50%); }
   .lb-next { right: clamp(0.5rem, 2vw, 1.5rem); top: 50%; transform: translateY(-50%); }
   .lb-counter {
-    position: absolute; bottom: 1.1rem; left: 50%; transform: translateX(-50%);
+    position: absolute; z-index: 3; bottom: 1.1rem; left: 50%; transform: translateX(-50%);
     color: #d9c3a1; font-size: var(--text-small); font-weight: 600;
     background: rgba(0,0,0,.4); padding: 0.25rem 0.75rem; border-radius: var(--radius-full);
   }

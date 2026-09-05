@@ -27,6 +27,12 @@ const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jp
                 <span class="reel-loader" aria-hidden="true">
                   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                 </span>
+                <button class="reel-mute" type="button" aria-label="Activar sonido">
+                  <span class="mute-ring" aria-hidden="true"></span>
+                  <svg class="ic-muted" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8l5 8M21 8l-5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+                  <svg class="ic-sound" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a5 5 0 0 1 0 8M18.5 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+                  <span class="mute-hint">Toca para el sonido</span>
+                </button>
                 <div class="reel-caption">
                   <div class="reel-user">
                     <span class="reel-title">{r.title}</span>
@@ -61,10 +67,6 @@ const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jp
                 <button class="rail-btn" type="button" aria-label="Compartir">
                   <svg viewBox="0 0 24 24" fill="currentColor"><path d="M13 3l8 8-8 8v-4.5C7 14 4 17 3 21c0-8 4-11 10-11.5V3z"/></svg>
                   <span>{r.shares}</span>
-                </button>
-                <button class="rail-btn reel-mute" type="button" aria-label="Activar sonido">
-                  <svg class="ic-muted" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4zM19 5l-2 2M17 5l2 2" stroke="currentColor" stroke-width="1.6"/><path d="M16 8l5 8M21 8l-5 8" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-                  <svg class="ic-sound" viewBox="0 0 24 24" fill="currentColor"><path d="M4 9v6h4l5 4V5L8 9H4z"/><path d="M16 8a5 5 0 0 1 0 8M18.5 6a8 8 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
                 </button>
                 <div class="rail-disc" aria-hidden="true">
                   <img src="/images/logo.png" alt="" width="34" height="34" />
@@ -223,23 +225,24 @@ const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jp
     background: linear-gradient(to top, rgba(0, 0, 0, 0.75), transparent 38%),
       linear-gradient(to bottom, rgba(0, 0, 0, 0.5), transparent 22%);
   }
-  /* Video 16:9 centrado (letterbox) */
+  /* Video que LLENA el reel (estilo TikTok; recorta lo que sobra) */
   .reel-video :global(iframe) {
     position: absolute;
     top: 50%;
-    left: 0;
-    width: 100%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    height: 100%;
+    width: auto;
+    min-width: 100%;
     aspect-ratio: 16 / 9;
-    transform: translateY(-50%);
     border: 0;
     z-index: 1;
   }
   .reel.is-vertical .reel-video :global(iframe) {
-    top: 0;
+    width: 100%;
     height: 100%;
+    min-width: 0;
     aspect-ratio: auto;
-    transform: none;
-    object-fit: cover;
   }
   .reel-tap { position: absolute; inset: 0; z-index: 3; cursor: pointer; }
   .reel-loader {
@@ -279,9 +282,48 @@ const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jp
     filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.5));
   }
   .rail-btn svg { width: 2rem; height: 2rem; }
+  .reel-mute {
+    position: absolute;
+    top: 3.6rem;
+    right: 0.9rem;
+    z-index: 6;
+    width: 2.9rem;
+    height: 2.9rem;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: var(--radius-full);
+    background: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    cursor: pointer;
+  }
+  .reel-mute svg { position: relative; z-index: 1; width: 1.5rem; height: 1.5rem; }
+  .mute-ring {
+    position: absolute; inset: 0; border-radius: var(--radius-full);
+    border: 2px solid var(--color-primary); opacity: 0;
+  }
+  .mute-hint {
+    position: absolute; right: calc(100% + 0.5rem); top: 50%; transform: translateY(-50%);
+    white-space: nowrap; background: var(--color-primary); color: #fff;
+    font-size: 0.7rem; font-weight: 700; padding: 0.25rem 0.6rem; border-radius: var(--radius-full);
+  }
   .reel-mute .ic-sound { display: none; }
   .feed:not(.is-muted) .reel-mute .ic-muted { display: none; }
   .feed:not(.is-muted) .reel-mute .ic-sound { display: block; }
+  .feed:not(.is-muted) .reel-mute .mute-hint { display: none; }
+  @media (prefers-reduced-motion: no-preference) {
+    .feed.is-muted .reel-mute { animation: mute-bob 1.9s var(--ease-brand) infinite; }
+    .feed.is-muted .mute-ring { animation: mute-ring 1.9s ease-out infinite; }
+  }
+  @keyframes mute-ring {
+    0% { transform: scale(1); opacity: 0.75; }
+    70% { transform: scale(1.9); opacity: 0; }
+    100% { opacity: 0; }
+  }
+  @keyframes mute-bob {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-3px); }
+  }
   .rail-disc {
     width: 2.6rem; height: 2.6rem; border-radius: var(--radius-full);
     display: grid; place-items: center; background: #1e1e1e;
@@ -362,7 +404,7 @@ const thumb = (id: string): string => `https://i.ytimg.com/vi/${id}/hqdefault.jp
       border-radius: var(--radius-md); background-size: cover; background-position: center;
     }
     .reel.is-vertical .reel-video { width: auto; height: 100%; max-height: 100%; aspect-ratio: 9 / 16; }
-    .reel-video :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; aspect-ratio: auto; transform: none; }
+    .reel-video :global(iframe) { position: absolute; inset: 0; width: 100%; height: 100%; min-width: 0; aspect-ratio: auto; transform: none; }
     .reel-rail { position: static; bottom: auto; right: auto; flex: 0 0 auto; }
     .reel-caption { left: 1rem; right: auto; bottom: 1rem; max-width: min(28rem, 70%); }
     .feed-arrows {
