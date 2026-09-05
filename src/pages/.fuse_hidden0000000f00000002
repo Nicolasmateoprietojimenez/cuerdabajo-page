@@ -9,7 +9,7 @@ import Contacto from '../components/sections/Contacto.astro';
 ---
 
 <MainLayout
-  title="Cuerdabajo — Agrupación carranguera para eventos | Soacha"
+  title="Cuerdabajo — Música carranguera para tu evento | Soacha, Colombia"
   description="Contrata a Cuerdabajo, agrupación carranguera de Soacha. Carranga con actitud para festivales, empresas, universidades, alcaldías, matrimonios y eventos. ¡Escríbenos por WhatsApp!"
 >
   <Hero />

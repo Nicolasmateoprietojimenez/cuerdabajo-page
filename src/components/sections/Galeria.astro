@@ -1,9 +1,10 @@
 ---
 /**
  * Galería — carga automática desde src/assets/galeria/ (fondo oscuro).
+ * Al hacer clic en una foto se abre en grande (lightbox) con navegación.
  * props: compact (muestra `limit` fotos + enlace) y limit.
  */
-import { Image } from 'astro:assets';
+import { Image, getImage } from 'astro:assets';
 interface Props {
   compact?: boolean;
   limit?: number;
@@ -18,6 +19,9 @@ let images = Object.entries(modules)
   .sort(([a], [b]) => b.localeCompare(a))
   .map(([, mod]) => mod.default);
 if (compact) images = images.slice(0, limit);
+
+// Versión grande para el visor.
+const fulls = await Promise.all(images.map((img) => getImage({ src: img, width: 1600 })));
 ---
 
 <section id="galeria" class="sec sec--dark gal">
@@ -30,11 +34,22 @@ if (compact) images = images.slice(0, limit);
 
     {
       images.length > 0 ? (
-        <div class="grid">
+        <div class="grid" id="gal-grid">
           {images.map((img, i) => (
-            <figure class="gitem" data-reveal style={`--reveal-delay:${(i % 3) * 90}ms`}>
-              <Image src={img} alt={`Cuerdabajo — foto ${i + 1}`} widths={[400, 800]} sizes="(min-width: 900px) 30vw, 90vw" loading="lazy" />
-            </figure>
+            <button
+              class="gitem"
+              type="button"
+              data-full={fulls[i].src}
+              data-index={i}
+              aria-label={`Ver foto ${i + 1} en grande`}
+              data-reveal
+              style={`--reveal-delay:${(i % 3) * 90}ms`}
+            >
+              <Image src={img} alt={`Cuerdabajo — foto ${i + 1}`} widths={[400, 800]} sizes="(min-width:900px) 30vw, 90vw" loading="lazy" />
+              <span class="gitem-zoom" aria-hidden="true">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4M11 8v6M8 11h6" stroke-linecap="round"/></svg>
+              </span>
+            </button>
           ))}
         </div>
       ) : (
@@ -56,15 +71,87 @@ if (compact) images = images.slice(0, limit);
       )
     }
   </div>
+
+  {
+    images.length > 0 && (
+      <div id="gal-lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Foto ampliada" hidden>
+        <button class="lb-btn lb-close" type="button" data-close aria-label="Cerrar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+        </button>
+        <button class="lb-btn lb-prev" type="button" data-prev aria-label="Anterior">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 6l-6 6 6 6"/></svg>
+        </button>
+        <img class="lb-img" src="" alt="" />
+        <button class="lb-btn lb-next" type="button" data-next aria-label="Siguiente">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6l6 6-6 6"/></svg>
+        </button>
+        <span class="lb-counter"></span>
+      </div>
+    )
+  }
 </section>
+
+<script>
+  const grid = document.getElementById('gal-grid');
+  const lb = document.getElementById('gal-lightbox');
+  if (grid && lb) {
+    const items = Array.from(grid.querySelectorAll<HTMLButtonElement>('.gitem'));
+    const srcs = items.map((b) => b.dataset.full ?? '');
+    const img = lb.querySelector<HTMLImageElement>('.lb-img')!;
+    const counter = lb.querySelector<HTMLElement>('.lb-counter')!;
+    let i = 0;
+
+    const show = (n: number): void => {
+      i = (n + srcs.length) % srcs.length;
+      img.src = srcs[i];
+      counter.textContent = `${i + 1} / ${srcs.length}`;
+    };
+    const open = (n: number): void => {
+      show(n);
+      lb.hidden = false;
+      void lb.offsetWidth;
+      lb.classList.add('is-open');
+      document.body.style.overflow = 'hidden';
+    };
+    const close = (): void => {
+      lb.classList.remove('is-open');
+      document.body.style.overflow = '';
+      window.setTimeout(() => { lb.hidden = true; img.src = ''; }, 250);
+    };
+
+    items.forEach((b, n) => b.addEventListener('click', () => open(n)));
+    lb.querySelector('[data-close]')?.addEventListener('click', close);
+    lb.querySelector('[data-next]')?.addEventListener('click', (e) => { e.stopPropagation(); show(i + 1); });
+    lb.querySelector('[data-prev]')?.addEventListener('click', (e) => { e.stopPropagation(); show(i - 1); });
+    lb.addEventListener('click', (e) => { if (e.target === lb) close(); });
+    document.addEventListener('keydown', (e) => {
+      if (lb.hidden) return;
+      if (e.key === 'Escape') close();
+      if (e.key === 'ArrowRight') show(i + 1);
+      if (e.key === 'ArrowLeft') show(i - 1);
+    });
+  }
+</script>
 
 <style>
   .gal-head { max-width: 42rem; margin-bottom: 2rem; }
   .gal-sub { margin: 0.75rem 0 0; font-size: 1.05rem; color: #b8ac99; }
   .grid { display: grid; grid-template-columns: 1fr; gap: 0.85rem; }
-  .gitem { margin: 0; border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 4 / 3; background: #2a2724; }
+  .gitem {
+    position: relative; margin: 0; padding: 0; border: 0; cursor: pointer;
+    border-radius: var(--radius-md); overflow: hidden; aspect-ratio: 4 / 3; background: #2a2724;
+  }
   .gitem :global(img) { width: 100%; height: 100%; object-fit: cover; display: block; transition: transform var(--transition-slow) var(--ease-brand); }
   .gitem:hover :global(img) { transform: scale(1.06); }
+  .gitem-zoom {
+    position: absolute; inset: 0; margin: auto; width: 3rem; height: 3rem;
+    display: grid; place-items: center; border-radius: var(--radius-full);
+    background: rgba(18,16,14,.55); color: #fff; opacity: 0;
+    transition: opacity var(--transition-fast) var(--ease-brand);
+  }
+  .gitem-zoom svg { width: 1.4rem; height: 1.4rem; }
+  .gitem:hover .gitem-zoom, .gitem:focus-visible .gitem-zoom { opacity: 1; }
+  .gitem:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
   .empty { max-width: 40rem; color: #b8ac99; line-height: 1.6; }
   .empty code { color: var(--color-primary); }
   .gal-more { display: inline-flex; align-items: center; gap: 0.5rem; margin-top: 1.75rem; color: #fff; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; font-size: var(--text-small); text-decoration: none; }
@@ -72,4 +159,39 @@ if (compact) images = images.slice(0, limit);
   .gal-more:hover svg { transform: translateX(4px); }
   @media (min-width: 640px) { .grid { grid-template-columns: repeat(2, 1fr); } }
   @media (min-width: 900px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* ---------- Lightbox ---------- */
+  .lightbox {
+    position: fixed; inset: 0; z-index: 120;
+    display: flex; align-items: center; justify-content: center;
+    padding: clamp(1rem, 4vw, 3rem);
+    background: rgba(10, 9, 8, 0.94);
+    opacity: 0; transition: opacity var(--transition-normal) var(--ease-brand);
+  }
+  .lightbox.is-open { opacity: 1; }
+  .lb-img {
+    max-width: 92vw; max-height: 86vh; width: auto; height: auto;
+    border-radius: var(--radius-md); box-shadow: 0 20px 60px rgba(0,0,0,.6);
+    transform: scale(0.97); transition: transform var(--transition-normal) var(--ease-brand);
+  }
+  .lightbox.is-open .lb-img { transform: scale(1); }
+  .lb-btn {
+    position: absolute; display: grid; place-items: center;
+    width: 3rem; height: 3rem; border: 0; border-radius: var(--radius-full);
+    background: rgba(255,255,255,.12); color: #fff; cursor: pointer;
+  }
+  .lb-btn:hover { background: var(--color-primary); }
+  .lb-btn svg { width: 1.5rem; height: 1.5rem; }
+  .lb-close { top: 1rem; right: 1rem; }
+  .lb-prev { left: clamp(0.5rem, 2vw, 1.5rem); top: 50%; transform: translateY(-50%); }
+  .lb-next { right: clamp(0.5rem, 2vw, 1.5rem); top: 50%; transform: translateY(-50%); }
+  .lb-counter {
+    position: absolute; bottom: 1.1rem; left: 50%; transform: translateX(-50%);
+    color: #d9c3a1; font-size: var(--text-small); font-weight: 600;
+    background: rgba(0,0,0,.4); padding: 0.25rem 0.75rem; border-radius: var(--radius-full);
+  }
+  @media (max-width: 640px) {
+    .lb-prev { left: 0.4rem; } .lb-next { right: 0.4rem; }
+    .lb-btn { width: 2.6rem; height: 2.6rem; }
+  }
 </style>
